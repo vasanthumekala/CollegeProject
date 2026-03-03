@@ -1,0 +1,68 @@
+/* BookingsCard styles */
+
+.booking-admin-row {
+  background: #fff;
+  border: 1px solid #e0e7ff;
+  border-left: 4px solid #6366f1;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition:
+    box-shadow 0.15s,
+    border-color 0.15s;
+}
+
+.booking-admin-row:hover {
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.15);
+  border-color: #a5b4fc;
+}
+
+.booking-admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  color: #1e1b4b;
+}
+
+.booking-admin-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.85rem;
+  color: #6366f1;
+}
+
+/* Status badges */
+.cust-status {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.cust-status--pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+.cust-status--confirmed {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.cust-status--in-progress {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+.cust-status--completed {
+  background: #d1fae5;
+  color: #065f46;
+}
+.cust-status--cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}

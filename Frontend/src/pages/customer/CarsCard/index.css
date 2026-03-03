@@ -1,0 +1,5 @@
+/* CarsCard-specific styles */
+.cust-carId-notice {
+  background: rgba(154, 220, 124, 0.15);
+  border: 1px solid rgb(154, 220, 124);
+}

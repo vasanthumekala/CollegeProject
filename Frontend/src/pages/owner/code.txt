@@ -1,0 +1,1422 @@
+import { useState, useEffect } from "react";
+import useAuth from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import cookies from "js-cookie";
+import "./index.css";
+
+{(actionMessage || actionError) && (
+              <div className="action-banner">
+                {actionMessage ? (
+                  <p className="action-success">{actionMessage}</p>
+                ) : null}
+                {actionError ? (
+                  <p className="action-error">{actionError}</p>
+                ) : null}
+              </div>
+            )}
+export default function Owner() {
+  const API_BASE_URL = "http://localhost:8000/api/v1";
+
+  const [ownerData, setOwnerData] = useState(null);
+  const [ownerError, setOwnerError] = useState("");
+  const [activeSection, setActiveSection] = useState("services");
+
+  const [services, setServices] = useState([]);
+  const [serviceForm, setServiceForm] = useState({
+    serviceType: "",
+    serviceCharge: "",
+  });
+  const [serviceUpdate, setServiceUpdate] = useState({
+    serviceId: "",
+    serviceCharge: "",
+  });
+  const [serviceDeleteId, setServiceDeleteId] = useState("");
+
+  const [products, setProducts] = useState([]);
+  const [productForm, setProductForm] = useState({
+    productName: "",
+    productNo: "",
+    type: "",
+    price: "",
+    quantity: "",
+  });
+  const [productUpdate, setProductUpdate] = useState({
+    productId: "",
+    productName: "",
+    productNo: "",
+    type: "",
+    price: "",
+  });
+  const [productInc, setProductInc] = useState({ productId: "", quantity: "" });
+  const [productDec, setProductDec] = useState({ productId: "", quantity: "" });
+  const [productDeleteId, setProductDeleteId] = useState("");
+
+  const [mechanics, setMechanics] = useState([]);
+  const [mechanicForm, setMechanicForm] = useState({
+    name: "",
+    experience: "",
+    contact: "",
+    profileImage: null,
+  });
+  const [mechanicUpdate, setMechanicUpdate] = useState({
+    mechanicId: "",
+    name: "",
+    experience: "",
+    contact: "",
+  });
+  const [mechanicImageUpdate, setMechanicImageUpdate] = useState({
+    mechanicId: "",
+    profileImage: null,
+  });
+  const [mechanicDeleteId, setMechanicDeleteId] = useState("");
+
+  // Bookings (admin)
+  const [allBookings, setAllBookings] = useState([]);
+  const [bookingStatusUpdate, setBookingStatusUpdate] = useState({
+    bookingId: "",
+    status: "",
+  });
+
+  const [actionMessage, setActionMessage] = useState("");
+  const [actionError, setActionError] = useState("");
+
+  const { userData, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const getAuthConfig = () => {
+    const jwtToken = cookies.get("vehicleServiceToken");
+    if (!jwtToken) return null;
+    return {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    };
+  };
+
+  const resetMessages = () => {
+    setActionMessage("");
+    setActionError("");
+  };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setOwnerError("");
+        const config = getAuthConfig();
+        if (!config) {
+          setOwnerError("Please login to access owner page.");
+          return;
+        }
+        const response = await axios.get(
+          `${API_BASE_URL}/users/userDetails`,
+          config,
+        );
+        setOwnerData(response.data.data);
+        console.log(response.data, "owner page response");
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setOwnerError(
+          error?.response?.data?.message ||
+            "Error fetching user data. Please login again.",
+        );
+      }
+    };
+
+    fetchUserData();
+  }, [userData, navigate]);
+
+  useEffect(() => {
+    const config = getAuthConfig();
+    if (!config) return;
+    if (!ownerData || ownerData.role !== "admin") return;
+
+    const fetchAll = async () => {
+      try {
+        const [servicesRes, productsRes, mechanicsRes, bookingsRes] =
+          await Promise.all([
+            axios.get(`${API_BASE_URL}/services/allService`, config),
+            axios.get(`${API_BASE_URL}/inventory/allProduct`, config),
+            axios.get(`${API_BASE_URL}/mechanic/allMechanic`, config),
+            axios.get(`${API_BASE_URL}/bookings/allBookings`, config),
+          ]);
+        setServices(servicesRes?.data?.data || []);
+        setProducts(productsRes?.data?.data || []);
+        setMechanics(mechanicsRes?.data?.data || []);
+        setAllBookings(bookingsRes?.data?.data || []);
+      } catch (error) {
+        console.error("Error fetching admin data:", error);
+      }
+    };
+
+    fetchAll();
+  }, [ownerData]);
+
+  const refreshServices = async () => {
+    const config = getAuthConfig();
+    if (!config) return;
+    const res = await axios.get(`${API_BASE_URL}/services/allService`, config);
+    setServices(res?.data?.data || []);
+  };
+
+  const refreshProducts = async () => {
+    const config = getAuthConfig();
+    if (!config) return;
+    const res = await axios.get(`${API_BASE_URL}/inventory/allProduct`, config);
+    setProducts(res?.data?.data || []);
+  };
+
+  const refreshMechanics = async () => {
+    const config = getAuthConfig();
+    if (!config) return;
+    const res = await axios.get(`${API_BASE_URL}/mechanic/allMechanic`, config);
+    setMechanics(res?.data?.data || []);
+  };
+
+  const fetchAllBookings = async () => {
+    const config = getAuthConfig();
+    if (!config) return;
+    try {
+      const res = await axios.get(
+        `${API_BASE_URL}/bookings/allBookings`,
+        config,
+      );
+      setAllBookings(res?.data?.data || []);
+    } catch (err) {
+      console.error("Failed to load bookings:", err);
+    }
+  };
+
+  const onUpdateBookingStatus = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      await axios.patch(
+        `${API_BASE_URL}/bookings/updateStatus/${bookingStatusUpdate.bookingId}`,
+        { status: bookingStatusUpdate.status },
+        config,
+      );
+      setActionMessage("Booking status updated.");
+      setBookingStatusUpdate({ bookingId: "", status: "" });
+      await fetchAllBookings();
+    } catch (err) {
+      setActionError(
+        err?.response?.data?.message || "Failed to update booking status.",
+      );
+    }
+  };
+
+  const onAddService = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      if (!config) throw new Error("No auth token");
+      await axios.post(
+        `${API_BASE_URL}/services/addService`,
+        {
+          serviceType: serviceForm.serviceType,
+          serviceCharge: Number(serviceForm.serviceCharge),
+        },
+        config,
+      );
+      setActionMessage("Service added successfully.");
+      setServiceForm({ serviceType: "", serviceCharge: "" });
+      await refreshServices();
+    } catch (error) {
+      setActionError(
+        error?.response?.data?.message || "Failed to add service.",
+      );
+    }
+  };
+
+  const onUpdateServiceCharge = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      if (!config) throw new Error("No auth token");
+      await axios.patch(
+        `${API_BASE_URL}/services/update/${serviceUpdate.serviceId}`,
+        { serviceCharge: Number(serviceUpdate.serviceCharge) },
+        config,
+      );
+      setActionMessage("Service charge updated.");
+      setServiceUpdate({ serviceId: "", serviceCharge: "" });
+      await refreshServices();
+    } catch (error) {
+      setActionError(
+        error?.response?.data?.message || "Failed to update service.",
+      );
+    }
+  };
+
+  const onDeleteService = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      if (!config) throw new Error("No auth token");
+      await axios.delete(`${API_BASE_URL}/services/remove/${serviceDeleteId}`, {
+        ...config,
+      });
+      setActionMessage("Service deleted.");
+      setServiceDeleteId("");
+      await refreshServices();
+    } catch (error) {
+      setActionError(
+        error?.response?.data?.message || "Failed to delete service.",
+      );
+    }
+  };
+
+  const onAddProduct = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      if (!config) throw new Error("No auth token");
+      await axios.post(
+        `${API_BASE_URL}/inventory/addProduct`,
+        {
+          productName: productForm.productName,
+          productNo: productForm.productNo,
+          type: productForm.type,
+          price: Number(productForm.price),
+          quantity: Number(productForm.quantity),
+        },
+        config,
+      );
+      setActionMessage("Product added.");
+      setProductForm({
+        productName: "",
+        productNo: "",
+        type: "",
+        price: "",
+        quantity: "",
+      });
+      await refreshProducts();
+    } catch (error) {
+      setActionError(
+        error?.response?.data?.message || "Failed to add product.",
+      );
+    }
+  };
+
+  const onUpdateProduct = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      if (!config) throw new Error("No auth token");
+      const payload = {};
+      if (productUpdate.productName)
+        payload.productName = productUpdate.productName;
+      if (productUpdate.productNo) payload.productNo = productUpdate.productNo;
+      if (productUpdate.type) payload.type = productUpdate.type;
+      if (productUpdate.price !== "")
+        payload.price = Number(productUpdate.price);
+
+      await axios.patch(
+        `${API_BASE_URL}/inventory/updateProduct/${productUpdate.productId}`,
+        payload,
+        config,
+      );
+      setActionMessage("Product updated.");
+      setProductUpdate({
+        productId: "",
+        productName: "",
+        productNo: "",
+        type: "",
+        price: "",
+      });
+      await refreshProducts();
+    } catch (error) {
+      setActionError(
+        error?.response?.data?.message || "Failed to update product.",
+      );
+    }
+  };
+
+  const onIncProductQty = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      if (!config) throw new Error("No auth token");
+      await axios.patch(
+        `${API_BASE_URL}/inventory/incproduct/${productInc.productId}`,
+        { quantity: Number(productInc.quantity) },
+        config,
+      );
+      setActionMessage("Quantity increased.");
+      setProductInc({ productId: "", quantity: "" });
+      await refreshProducts();
+    } catch (error) {
+      setActionError(
+        error?.response?.data?.message || "Failed to increase quantity.",
+      );
+    }
+  };
+
+  const onDecProductQty = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      if (!config) throw new Error("No auth token");
+      await axios.patch(
+        `${API_BASE_URL}/inventory/decproduct/${productDec.productId}`,
+        { quantity: Number(productDec.quantity) },
+        config,
+      );
+      setActionMessage("Quantity decreased.");
+      setProductDec({ productId: "", quantity: "" });
+      await refreshProducts();
+    } catch (error) {
+      setActionError(
+        error?.response?.data?.message || "Failed to decrease quantity.",
+      );
+    }
+  };
+
+  const onDeleteProduct = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      if (!config) throw new Error("No auth token");
+      await axios.delete(
+        `${API_BASE_URL}/inventory/deleteProduct/${productDeleteId}`,
+        { ...config },
+      );
+      setActionMessage("Product deleted.");
+      setProductDeleteId("");
+      await refreshProducts();
+    } catch (error) {
+      setActionError(
+        error?.response?.data?.message || "Failed to delete product.",
+      );
+    }
+  };
+
+  const onAddMechanic = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      if (!config) throw new Error("No auth token");
+
+      const form = new FormData();
+      form.append("name", mechanicForm.name);
+      form.append("experience", mechanicForm.experience);
+      form.append("contact", mechanicForm.contact);
+      form.append("profileImage", mechanicForm.profileImage);
+
+      await axios.post(`${API_BASE_URL}/mechanic/addMechanic`, form, {
+        headers: {
+          ...config.headers,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      setActionMessage("Mechanic added.");
+      setMechanicForm({
+        name: "",
+        experience: "",
+        contact: "",
+        profileImage: null,
+      });
+      await refreshMechanics();
+    } catch (error) {
+      setActionError(
+        error?.response?.data?.message || "Failed to add mechanic.",
+      );
+    }
+  };
+
+  const onUpdateMechanic = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      if (!config) throw new Error("No auth token");
+      const payload = {};
+      if (mechanicUpdate.name) payload.name = mechanicUpdate.name;
+      if (mechanicUpdate.experience !== "")
+        payload.experience = Number(mechanicUpdate.experience);
+      if (mechanicUpdate.contact) payload.contact = mechanicUpdate.contact;
+
+      await axios.post(
+        `${API_BASE_URL}/mechanic/update/${mechanicUpdate.mechanicId}`,
+        payload,
+        config,
+      );
+      setActionMessage("Mechanic updated.");
+      setMechanicUpdate({
+        mechanicId: "",
+        name: "",
+        experience: "",
+        contact: "",
+      });
+      await refreshMechanics();
+    } catch (error) {
+      setActionError(
+        error?.response?.data?.message || "Failed to update mechanic.",
+      );
+    }
+  };
+
+  const onUpdateMechanicImage = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      if (!config) throw new Error("No auth token");
+      const form = new FormData();
+      form.append("profileImage", mechanicImageUpdate.profileImage);
+
+      await axios.patch(
+        `${API_BASE_URL}/mechanic/updateImage/${mechanicImageUpdate.mechanicId}`,
+        form,
+        {
+          headers: {
+            ...config.headers,
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      setActionMessage("Mechanic image updated.");
+      setMechanicImageUpdate({ mechanicId: "", profileImage: null });
+      await refreshMechanics();
+    } catch (error) {
+      setActionError(
+        error?.response?.data?.message || "Failed to update mechanic image.",
+      );
+    }
+  };
+
+  const onDeleteMechanic = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      if (!config) throw new Error("No auth token");
+      await axios.delete(
+        `${API_BASE_URL}/mechanic/remove/${mechanicDeleteId}`,
+        {
+          ...config,
+        },
+      );
+      setActionMessage("Mechanic removed.");
+      setMechanicDeleteId("");
+      await refreshMechanics();
+    } catch (error) {
+      setActionError(
+        error?.response?.data?.message || "Failed to remove mechanic.",
+      );
+    }
+  };
+
+  const handleLogout = () => {
+    cookies.remove("vehicleServiceToken", { path: "/" });
+    logout();
+    setOwnerData(null);
+    navigate("/");
+  };
+  return (
+    <div className="owner-container">
+      <div className="owner-content">
+        <nav className="nav-container-admin">
+          <div className="nav-brand">
+            <img
+              className="logo-admin"
+              src="https://res.cloudinary.com/dk2bbhmdm/image/upload/v1769749778/ChatGPT_Image_Jan_30_2026_10_35_46_AMlogo_hgcy8e.png"
+              alt="Logo"
+            />
+          </div>
+          <h2 className="service-header">Service Management</h2>
+          <ul className="userDetails-top">
+            <li className="userName-top">{ownerData?.userName}</li>
+            <li className="list-element">
+              <img
+                className="profileImage-top"
+                src={ownerData?.profileImage}
+                alt="Profile"
+              />
+            </li>
+            <li className="list-element">
+              <button className="button" type="button" onClick={handleLogout}>
+                Logout
+              </button>
+            </li>
+          </ul>
+        </nav>
+
+        {ownerError ? <p className="owner-error">{ownerError}</p> : null}
+        {ownerData?.role && ownerData.role !== "admin" ? (
+          <div className="owner-not-authorized">
+            <h3>Not authorized</h3>
+            <p>This page is only for admin users.</p>
+          </div>
+        ) : (
+          <div className="owner-main">
+            <div className="admin-tabs">
+              <button
+                className={`tab-button ${activeSection === "services" ? "active" : ""}`}
+                type="button"
+                onClick={() => {
+                  resetMessages();
+                  setActiveSection("services");
+                }}
+              >
+                Services
+              </button>
+              <button
+                className={`tab-button ${activeSection === "inventory" ? "active" : ""}`}
+                type="button"
+                onClick={() => {
+                  resetMessages();
+                  setActiveSection("inventory");
+                }}
+              >
+                Inventory
+              </button>
+              <button
+                className={`tab-button ${activeSection === "mechanics" ? "active" : ""}`}
+                type="button"
+                onClick={() => {
+                  resetMessages();
+                  setActiveSection("mechanics");
+                }}
+              >
+                Mechanics
+              </button>
+              <button
+                className={`tab-button ${activeSection === "bookings" ? "active" : ""}`}
+                type="button"
+                onClick={() => {
+                  resetMessages();
+                  setActiveSection("bookings");
+                  fetchAllBookings();
+                }}
+              >
+                Bookings
+              </button>
+            </div>
+ 
+            {(actionMessage || actionError) && (
+              <div className="action-banner">
+                {actionMessage ? (
+                  <p className="action-success">{actionMessage}</p>
+                ) : null}
+                {actionError ? (
+                  <p className="action-error">{actionError}</p>
+                ) : null}
+              </div>
+            )}
+
+            {activeSection === "services" ? (
+              <div className="panel">
+                <div className="card">
+                  <h3>All Services</h3>
+                  <div className="list">
+                    {services.length ? (
+                      services.map((s) => (
+                        <div className="list-row" key={s._id}>
+                          <span className="list-title">{s.serviceType}</span>
+                          <span className="list-meta">₹{s.serviceCharge}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="muted">No services found.</p>
+                    )}
+                  </div>
+                  <div className="card-actions">
+                    <button
+                      className="button"
+                      type="button"
+                      onClick={refreshServices}
+                    >
+                      Refresh
+                    </button>
+                  </div>
+                </div>
+
+                <div className="panel-grid">
+                  <form className="card" onSubmit={onAddService}>
+                    <h3>Add Service</h3>
+                    <div className="form-row">
+                      <label>Service Type</label>
+                      <input
+                        className="text-input"
+                        value={serviceForm.serviceType}
+                        onChange={(e) =>
+                          setServiceForm((p) => ({
+                            ...p,
+                            serviceType: e.target.value,
+                          }))
+                        }
+                        placeholder="Oil Change"
+                        required
+                      />
+                    </div>
+                    <div className="form-row">
+                      <label>Service Charge</label>
+                      <input
+                        className="text-input"
+                        type="number"
+                        min="0"
+                        value={serviceForm.serviceCharge}
+                        onChange={(e) =>
+                          setServiceForm((p) => ({
+                            ...p,
+                            serviceCharge: e.target.value,
+                          }))
+                        }
+                        placeholder="500"
+                        required
+                      />
+                    </div>
+                    <button className="button" type="submit">
+                      Add
+                    </button>
+                  </form>
+
+                  <form className="card" onSubmit={onUpdateServiceCharge}>
+                    <h3>Update Service Charge</h3>
+                    <div className="form-row">
+                      <label>Select Service</label>
+                      <select
+                        className="text-input"
+                        value={serviceUpdate.serviceId}
+                        onChange={(e) =>
+                          setServiceUpdate((p) => ({
+                            ...p,
+                            serviceId: e.target.value,
+                          }))
+                        }
+                        required
+                      >
+                        <option value="">-- select --</option>
+                        {services.map((s) => (
+                          <option key={s._id} value={s._id}>
+                            {s.serviceType}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="form-row">
+                      <label>New Charge</label>
+                      <input
+                        className="text-input"
+                        type="number"
+                        min="0"
+                        value={serviceUpdate.serviceCharge}
+                        onChange={(e) =>
+                          setServiceUpdate((p) => ({
+                            ...p,
+                            serviceCharge: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                    <button className="button" type="submit">
+                      Update
+                    </button>
+                  </form>
+
+                  <form className="card" onSubmit={onDeleteService}>
+                    <h3>Delete Service</h3>
+                    <div className="form-row">
+                      <label>Select Service</label>
+                      <select
+                        className="text-input"
+                        value={serviceDeleteId}
+                        onChange={(e) => setServiceDeleteId(e.target.value)}
+                        required
+                      >
+                        <option value="">-- select --</option>
+                        {services.map((s) => (
+                          <option key={s._id} value={s._id}>
+                            {s.serviceType}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <button className="button" type="submit">
+                      Delete
+                    </button>
+                  </form>
+                </div>
+              </div>
+            ) : null}
+
+            {activeSection === "inventory" ? (
+              <div className="panel">
+                <div className="card">
+                  <h3>All Products</h3>
+                  <div className="list">
+                    {products.length ? (
+                      products.map((p) => (
+                        <div className="list-row" key={p._id}>
+                          <span className="list-title">{p.productName}</span>
+                          <span className="list-meta">
+                            {p.productNo} | {p.type} | ₹{p.price} | Qty:{" "}
+                            {p.quantity}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="muted">No products found.</p>
+                    )}
+                  </div>
+                  <div className="card-actions">
+                    <button
+                      className="button"
+                      type="button"
+                      onClick={refreshProducts}
+                    >
+                      Refresh
+                    </button>
+                  </div>
+                </div>
+
+                <div className="panel-grid">
+                  <form className="card" onSubmit={onAddProduct}>
+                    <h3>Add Product</h3>
+                    <div className="form-row">
+                      <label>Product Name</label>
+                      <input
+                        className="text-input"
+                        value={productForm.productName}
+                        onChange={(e) =>
+                          setProductForm((p) => ({
+                            ...p,
+                            productName: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="form-row">
+                      <label>Product No</label>
+                      <input
+                        className="text-input"
+                        value={productForm.productNo}
+                        onChange={(e) =>
+                          setProductForm((p) => ({
+                            ...p,
+                            productNo: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="form-row">
+                      <label>Type</label>
+                      <input
+                        className="text-input"
+                        value={productForm.type}
+                        onChange={(e) =>
+                          setProductForm((p) => ({
+                            ...p,
+                            type: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="form-row">
+                      <label>Price</label>
+                      <input
+                        className="text-input"
+                        type="number"
+                        min="0"
+                        value={productForm.price}
+                        onChange={(e) =>
+                          setProductForm((p) => ({
+                            ...p,
+                            price: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="form-row">
+                      <label>Quantity</label>
+                      <input
+                        className="text-input"
+                        type="number"
+                        min="0"
+                        value={productForm.quantity}
+                        onChange={(e) =>
+                          setProductForm((p) => ({
+                            ...p,
+                            quantity: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                    <button className="button" type="submit">
+                      Add
+                    </button>
+                  </form>
+
+                  <form className="card" onSubmit={onUpdateProduct}>
+                    <h3>Update Product</h3>
+                    <div className="form-row">
+                      <label>Select Product</label>
+                      <select
+                        className="text-input"
+                        value={productUpdate.productId}
+                        onChange={(e) =>
+                          setProductUpdate((p) => ({
+                            ...p,
+                            productId: e.target.value,
+                          }))
+                        }
+                        required
+                      >
+                        <option value="">-- select --</option>
+                        {products.map((p) => (
+                          <option key={p._id} value={p._id}>
+                            {p.productName} ({p.productNo})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="form-row">
+                      <label>Product Name (optional)</label>
+                      <input
+                        className="text-input"
+                        value={productUpdate.productName}
+                        onChange={(e) =>
+                          setProductUpdate((p) => ({
+                            ...p,
+                            productName: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="form-row">
+                      <label>Product No (optional)</label>
+                      <input
+                        className="text-input"
+                        value={productUpdate.productNo}
+                        onChange={(e) =>
+                          setProductUpdate((p) => ({
+                            ...p,
+                            productNo: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="form-row">
+                      <label>Type (optional)</label>
+                      <input
+                        className="text-input"
+                        value={productUpdate.type}
+                        onChange={(e) =>
+                          setProductUpdate((p) => ({
+                            ...p,
+                            type: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="form-row">
+                      <label>Price (optional)</label>
+                      <input
+                        className="text-input"
+                        type="number"
+                        min="0"
+                        value={productUpdate.price}
+                        onChange={(e) =>
+                          setProductUpdate((p) => ({
+                            ...p,
+                            price: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <button className="button" type="submit">
+                      Update
+                    </button>
+                  </form>
+
+                  <form className="card" onSubmit={onIncProductQty}>
+                    <h3>Increase Quantity</h3>
+                    <div className="form-row">
+                      <label>Select Product</label>
+                      <select
+                        className="text-input"
+                        value={productInc.productId}
+                        onChange={(e) =>
+                          setProductInc((p) => ({
+                            ...p,
+                            productId: e.target.value,
+                          }))
+                        }
+                        required
+                      >
+                        <option value="">-- select --</option>
+                        {products.map((p) => (
+                          <option key={p._id} value={p._id}>
+                            {p.productName}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="form-row">
+                      <label>Quantity</label>
+                      <input
+                        className="text-input"
+                        type="number"
+                        min="1"
+                        value={productInc.quantity}
+                        onChange={(e) =>
+                          setProductInc((p) => ({
+                            ...p,
+                            quantity: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                    <button className="button" type="submit">
+                      Increase
+                    </button>
+                  </form>
+
+                  <form className="card" onSubmit={onDecProductQty}>
+                    <h3>Decrease Quantity</h3>
+                    <div className="form-row">
+                      <label>Select Product</label>
+                      <select
+                        className="text-input"
+                        value={productDec.productId}
+                        onChange={(e) =>
+                          setProductDec((p) => ({
+                            ...p,
+                            productId: e.target.value,
+                          }))
+                        }
+                        required
+                      >
+                        <option value="">-- select --</option>
+                        {products.map((p) => (
+                          <option key={p._id} value={p._id}>
+                            {p.productName}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="form-row">
+                      <label>Quantity</label>
+                      <input
+                        className="text-input"
+                        type="number"
+                        min="1"
+                        value={productDec.quantity}
+                        onChange={(e) =>
+                          setProductDec((p) => ({
+                            ...p,
+                            quantity: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                    <button className="button" type="submit">
+                      Decrease
+                    </button>
+                  </form>
+
+                  <form className="card" onSubmit={onDeleteProduct}>
+                    <h3>Delete Product</h3>
+                    <div className="form-row">
+                      <label>Select Product</label>
+                      <select
+                        className="text-input"
+                        value={productDeleteId}
+                        onChange={(e) => setProductDeleteId(e.target.value)}
+                        required
+                      >
+                        <option value="">-- select --</option>
+                        {products.map((p) => (
+                          <option key={p._id} value={p._id}>
+                            {p.productName} ({p.productNo})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <button className="button" type="submit">
+                      Delete
+                    </button>
+                  </form>
+                </div>
+              </div>
+            ) : null}
+
+            {activeSection === "mechanics" ? (
+              <div className="panel">
+                <div className="card">
+                  <h3>All Mechanics</h3>
+                  <div className="list">
+                    {mechanics.length ? (
+                      mechanics.map((m) => (
+                        <div className="list-row" key={m._id}>
+                          <span className="list-title">{m.name}</span>
+                          <span className="list-meta">
+                            Exp: {m.experience} | {m.contact} | Rating:{" "}
+                            {m.averageRating}
+                          </span>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="muted">No mechanics found.</p>
+                    )}
+                  </div>
+                  <div className="card-actions">
+                    <button
+                      className="button"
+                      type="button"
+                      onClick={refreshMechanics}
+                    >
+                      Refresh
+                    </button>
+                  </div>
+                </div>
+
+                <div className="panel-grid">
+                  <form className="card" onSubmit={onAddMechanic}>
+                    <h3>Add Mechanic</h3>
+                    <div className="form-row">
+                      <label>Name</label>
+                      <input
+                        className="text-input"
+                        value={mechanicForm.name}
+                        onChange={(e) =>
+                          setMechanicForm((p) => ({
+                            ...p,
+                            name: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="form-row">
+                      <label>Experience (years)</label>
+                      <input
+                        className="text-input"
+                        type="number"
+                        min="0"
+                        value={mechanicForm.experience}
+                        onChange={(e) =>
+                          setMechanicForm((p) => ({
+                            ...p,
+                            experience: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="form-row">
+                      <label>Contact</label>
+                      <input
+                        className="text-input"
+                        value={mechanicForm.contact}
+                        onChange={(e) =>
+                          setMechanicForm((p) => ({
+                            ...p,
+                            contact: e.target.value,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="form-row">
+                      <label>Profile Image</label>
+                      <input
+                        className="text-input"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) =>
+                          setMechanicForm((p) => ({
+                            ...p,
+                            profileImage: e.target.files?.[0] || null,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                    <button className="button" type="submit">
+                      Add
+                    </button>
+                  </form>
+
+                  <form className="card" onSubmit={onUpdateMechanic}>
+                    <h3>Update Mechanic</h3>
+                    <div className="form-row">
+                      <label>Select Mechanic</label>
+                      <select
+                        className="text-input"
+                        value={mechanicUpdate.mechanicId}
+                        onChange={(e) =>
+                          setMechanicUpdate((p) => ({
+                            ...p,
+                            mechanicId: e.target.value,
+                          }))
+                        }
+                        required
+                      >
+                        <option value="">-- select --</option>
+                        {mechanics.map((m) => (
+                          <option key={m._id} value={m._id}>
+                            {m.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="form-row">
+                      <label>Name (optional)</label>
+                      <input
+                        className="text-input"
+                        value={mechanicUpdate.name}
+                        onChange={(e) =>
+                          setMechanicUpdate((p) => ({
+                            ...p,
+                            name: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="form-row">
+                      <label>Experience (optional)</label>
+                      <input
+                        className="text-input"
+                        type="number"
+                        min="0"
+                        value={mechanicUpdate.experience}
+                        onChange={(e) =>
+                          setMechanicUpdate((p) => ({
+                            ...p,
+                            experience: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="form-row">
+                      <label>Contact (optional)</label>
+                      <input
+                        className="text-input"
+                        value={mechanicUpdate.contact}
+                        onChange={(e) =>
+                          setMechanicUpdate((p) => ({
+                            ...p,
+                            contact: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    <button className="button" type="submit">
+                      Update
+                    </button>
+                  </form>
+
+                  <form className="card" onSubmit={onUpdateMechanicImage}>
+                    <h3>Update Mechanic Image</h3>
+                    <div className="form-row">
+                      <label>Select Mechanic</label>
+                      <select
+                        className="text-input"
+                        value={mechanicImageUpdate.mechanicId}
+                        onChange={(e) =>
+                          setMechanicImageUpdate((p) => ({
+                            ...p,
+                            mechanicId: e.target.value,
+                          }))
+                        }
+                        required
+                      >
+                        <option value="">-- select --</option>
+                        {mechanics.map((m) => (
+                          <option key={m._id} value={m._id}>
+                            {m.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="form-row">
+                      <label>New Profile Image</label>
+                      <input
+                        className="text-input"
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) =>
+                          setMechanicImageUpdate((p) => ({
+                            ...p,
+                            profileImage: e.target.files?.[0] || null,
+                          }))
+                        }
+                        required
+                      />
+                    </div>
+                    <button className="button" type="submit">
+                      Update Image
+                    </button>
+                  </form>
+
+                  <form className="card" onSubmit={onDeleteMechanic}>
+                    <h3>Remove Mechanic</h3>
+                    <div className="form-row">
+                      <label>Select Mechanic</label>
+                      <select
+                        className="text-input"
+                        value={mechanicDeleteId}
+                        onChange={(e) => setMechanicDeleteId(e.target.value)}
+                        required
+                      >
+                        <option value="">-- select --</option>
+                        {mechanics.map((m) => (
+                          <option key={m._id} value={m._id}>
+                            {m.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <button className="button" type="submit">
+                      Remove
+                    </button>
+                  </form>
+                </div>
+              </div>
+            ) : null}
+
+            {activeSection === "bookings" ? (
+              <div className="panel">
+                <div className="card">
+                  <h3>All Bookings</h3>
+                  <div className="list">
+                    {allBookings.length ? (
+                      allBookings.map((b) => (
+                        <div className="booking-admin-row" key={b._id}>
+                          <div className="booking-admin-header">
+                            <span className="list-title">
+                              {b.user?.name} (@{b.user?.userName})
+                            </span>
+                            <span
+                              className={`cust-status cust-status--${b.status}`}
+                            >
+                              {b.status}
+                            </span>
+                          </div>
+                          <div className="booking-admin-meta">
+                            <span>
+                              🚗 {b.carDetails?.brand} {b.carDetails?.model} (
+                              {b.carDetails?.licenseNo})
+                            </span>
+                            <span>
+                              🔧 {b.service?.serviceType} — ₹
+                              {b.service?.serviceCharge}
+                            </span>
+                            <span>
+                              📅 {new Date(b.bookingDate).toLocaleDateString()}
+                            </span>
+                            {b.mechanic ? (
+                              <span>Mechanic: {b.mechanic.name}</span>
+                            ) : (
+                              <span className="muted">
+                                No mechanic assigned
+                              </span>
+                            )}
+                            {b.notes ? (
+                              <span className="muted">📝 {b.notes}</span>
+                            ) : null}
+                            <span className="muted">
+                              📞 {b.user?.phone} | {b.user?.email}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="muted">No bookings yet.</p>
+                    )}
+                  </div>
+                  <div className="card-actions">
+                    <button
+                      className="button"
+                      type="button"
+                      onClick={fetchAllBookings}
+                    >
+                      Refresh
+                    </button>
+                  </div>
+                </div>
+
+                <form className="card" onSubmit={onUpdateBookingStatus}>
+                  <h3>Update Booking Status</h3>
+                  <div className="form-row">
+                    <label>Select Booking</label>
+                    <select
+                      className="text-input"
+                      value={bookingStatusUpdate.bookingId}
+                      onChange={(e) =>
+                        setBookingStatusUpdate((p) => ({
+                          ...p,
+                          bookingId: e.target.value,
+                        }))
+                      }
+                      required
+                    >
+                      <option value="">-- select --</option>
+                      {allBookings.map((b) => (
+                        <option key={b._id} value={b._id}>
+                          {b.user?.name} — {b.service?.serviceType} (
+                          {b.carDetails?.licenseNo}) [{b.status}]
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-row">
+                    <label>New Status</label>
+                    <select
+                      className="text-input"
+                      value={bookingStatusUpdate.status}
+                      onChange={(e) =>
+                        setBookingStatusUpdate((p) => ({
+                          ...p,
+                          status: e.target.value,
+                        }))
+                      }
+                      required
+                    >
+                      <option value="">-- choose --</option>
+                      {[
+                        "pending",
+                        "confirmed",
+                        "in-progress",
+                        "completed",
+                        "cancelled",
+                      ].map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <button className="button" type="submit">
+                    Update Status
+                  </button>
+                </form>
+              </div>
+            ) : null}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

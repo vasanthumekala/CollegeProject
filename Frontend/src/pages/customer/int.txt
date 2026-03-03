@@ -1,0 +1,837 @@
+import { useState, useEffect } from "react";
+import useAuth from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import cookies from "js-cookie";
+import "./index.css";
+
+const API_BASE_URL = "http://localhost:8000/api/v1";
+
+export default function Customer() {
+  const [customerData, setCustomerData] = useState(null);
+  const [activeSection, setActiveSection] = useState("profile");
+
+  // Profile update
+  const [profileForm, setProfileForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
+
+  // Password change
+  const [passwordForm, setPasswordForm] = useState({
+    oldPassword: "",
+    newPassword: "",
+  });
+
+  // Profile image
+  const [profileImageFile, setProfileImageFile] = useState(null);
+
+  // Cars
+  const [carForm, setCarForm] = useState({
+    brand: "",
+    model: "",
+    licenseNo: "",
+  });
+  const [carUpdate, setCarUpdate] = useState({
+    carId: "",
+    brand: "",
+    model: "",
+    licenseNo: "",
+  });
+  const [carDeleteId, setCarDeleteId] = useState("");
+  const [registeredCarId, setRegisteredCarId] = useState("");
+
+  // Services
+  const [services, setServices] = useState([]);
+
+  // Bookings
+  const [bookingForm, setBookingForm] = useState({
+    brand: "",
+    model: "",
+    licenseNo: "",
+    serviceId: "",
+    bookingDate: "",
+    notes: "",
+  });
+  const [myBookings, setMyBookings] = useState([]);
+
+  const [actionMessage, setActionMessage] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [pageError, setPageError] = useState("");
+
+  const { userData, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const getAuthConfig = () => {
+    const jwtToken = cookies.get("vehicleServiceToken");
+    if (!jwtToken) return null;
+    return { headers: { Authorization: `Bearer ${jwtToken}` } };
+  };
+
+  const resetMessages = () => {
+    setActionMessage("");
+    setActionError("");
+  };
+
+  useEffect(() => {
+    const fetchCustomer = async () => {
+      const config = getAuthConfig();
+      if (!config) {
+        setPageError("Not logged in.");
+        return;
+      }
+      try {
+        const res = await axios.get(
+          `${API_BASE_URL}/users/userDetails`,
+          config,
+        );
+        const data = res.data.data;
+        setCustomerData(data);
+        setProfileForm({
+          name: data.name || "",
+          email: data.email || "",
+          phone: data.phone || "",
+        });
+      } catch (err) {
+        setPageError(
+          err?.response?.data?.message || "Failed to load user details.",
+        );
+      }
+    };
+    fetchCustomer();
+  }, [userData]);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      const config = getAuthConfig();
+      if (!config) return;
+      try {
+        const res = await axios.get(
+          `${API_BASE_URL}/services/allService`,
+          config,
+        );
+        setServices(res?.data?.data || []);
+      } catch (err) {
+        console.error("Failed to load services:", err);
+      }
+    };
+    fetchServices();
+  }, []);
+
+  const fetchMyBookings = async () => {
+    const config = getAuthConfig();
+    if (!config) return;
+    try {
+      const res = await axios.get(
+        `${API_BASE_URL}/bookings/myBookings`,
+        config,
+      );
+      setMyBookings(res?.data?.data || []);
+    } catch (err) {
+      console.error("Failed to load bookings:", err);
+    }
+  };
+
+  const onBookService = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      await axios.post(
+        `${API_BASE_URL}/bookings/create`,
+        {
+          brand: bookingForm.brand,
+          model: bookingForm.model,
+          licenseNo: bookingForm.licenseNo,
+          serviceId: bookingForm.serviceId,
+          bookingDate: bookingForm.bookingDate,
+          notes: bookingForm.notes,
+        },
+        config,
+      );
+      setActionMessage("Service booked successfully!");
+      setBookingForm({
+        brand: "",
+        model: "",
+        licenseNo: "",
+        serviceId: "",
+        bookingDate: "",
+        notes: "",
+      });
+      await fetchMyBookings();
+    } catch (err) {
+      setActionError(err?.response?.data?.message || "Failed to book service.");
+    }
+  };
+
+  const onCancelBooking = async (bookingId) => {
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      await axios.patch(
+        `${API_BASE_URL}/bookings/cancel/${bookingId}`,
+        {},
+        config,
+      );
+      setActionMessage("Booking cancelled.");
+      await fetchMyBookings();
+    } catch (err) {
+      setActionError(
+        err?.response?.data?.message || "Failed to cancel booking.",
+      );
+    }
+  };
+
+  const onUpdateProfile = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      const res = await axios.patch(
+        `${API_BASE_URL}/users/updateAccount`,
+        {
+          name: profileForm.name,
+          email: profileForm.email,
+          phone: profileForm.phone,
+        },
+        config,
+      );
+      setCustomerData(res.data.data);
+      setActionMessage("Profile updated successfully.");
+    } catch (err) {
+      setActionError(
+        err?.response?.data?.message || "Failed to update profile.",
+      );
+    }
+  };
+
+  const onChangePassword = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      await axios.patch(
+        `${API_BASE_URL}/users/updatePassword`,
+        {
+          oldPassword: passwordForm.oldPassword,
+          newPassword: passwordForm.newPassword,
+        },
+        config,
+      );
+      setActionMessage("Password changed successfully.");
+      setPasswordForm({ oldPassword: "", newPassword: "" });
+    } catch (err) {
+      setActionError(
+        err?.response?.data?.message || "Failed to change password.",
+      );
+    }
+  };
+
+  const onUpdateProfileImage = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    if (!profileImageFile) {
+      setActionError("Please select an image.");
+      return;
+    }
+    try {
+      const config = getAuthConfig();
+      const form = new FormData();
+      form.append("profileImage", profileImageFile);
+      const res = await axios.patch(
+        `${API_BASE_URL}/users/profileImage`,
+        form,
+        {
+          headers: { ...config.headers, "Content-Type": "multipart/form-data" },
+        },
+      );
+      setCustomerData(res.data.data);
+      setActionMessage("Profile image updated.");
+      setProfileImageFile(null);
+    } catch (err) {
+      setActionError(
+        err?.response?.data?.message || "Failed to update profile image.",
+      );
+    }
+  };
+
+  const onRegisterCar = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      const res = await axios.post(
+        `${API_BASE_URL}/cars/register`,
+        {
+          brand: carForm.brand,
+          model: carForm.model,
+          licenseNo: carForm.licenseNo,
+        },
+        config,
+      );
+      const newCar = res.data.data;
+      setActionMessage(
+        `Car registered! ID: ${newCar._id} — save this ID to update/remove.`,
+      );
+      setRegisteredCarId(newCar._id);
+      setCarForm({ brand: "", model: "", licenseNo: "" });
+    } catch (err) {
+      setActionError(err?.response?.data?.message || "Failed to register car.");
+    }
+  };
+
+  const onUpdateCar = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      const payload = {};
+      if (carUpdate.brand) payload.brand = carUpdate.brand;
+      if (carUpdate.model) payload.model = carUpdate.model;
+      if (carUpdate.licenseNo) payload.licenseNo = carUpdate.licenseNo;
+      await axios.patch(
+        `${API_BASE_URL}/cars/update/${carUpdate.carId}`,
+        payload,
+        config,
+      );
+      setActionMessage("Car updated.");
+      setCarUpdate({ carId: "", brand: "", model: "", licenseNo: "" });
+    } catch (err) {
+      setActionError(err?.response?.data?.message || "Failed to update car.");
+    }
+  };
+
+  const onRemoveCar = async (e) => {
+    e.preventDefault();
+    resetMessages();
+    try {
+      const config = getAuthConfig();
+      await axios.delete(`${API_BASE_URL}/cars/remove/${carDeleteId}`, {
+        ...config,
+      });
+      setActionMessage("Car removed.");
+      setCarDeleteId("");
+    } catch (err) {
+      setActionError(err?.response?.data?.message || "Failed to remove car.");
+    }
+  };
+
+  const handleLogout = () => {
+    cookies.remove("vehicleServiceToken", { path: "/" });
+    logout();
+    setCustomerData(null);
+    navigate("/");
+  };
+
+  return (
+    <div className="customer-container">
+      <div className="customer-content">
+        <nav className="nav-container-user">
+          <div className="nav-brand-user">
+            <img
+              className="logo-user"
+              src="https://res.cloudinary.com/dk2bbhmdm/image/upload/v1769749778/ChatGPT_Image_Jan_30_2026_10_35_46_AMlogo_hgcy8e.png"
+              alt="Logo"
+            />
+          </div>
+          <h2 className="cust-header">Vehicle Care</h2>
+          <ul className="cust-userDetails-top">
+            <li className="cust-userName-top">{customerData?.userName}</li>
+            <li className="cust-list-element">
+              <img
+                className="cust-profileImage-top"
+                src={customerData?.profileImage}
+                alt="Profile"
+              />
+            </li>
+            <li>
+              <button className="button" type="button" onClick={handleLogout}>
+                Logout
+              </button>
+            </li>
+          </ul>
+        </nav>
+
+        {pageError ? <p className="cust-page-error">{pageError}</p> : null}
+
+        <div className="cust-main">
+          <div className="cust-tabs">
+            {["profile", "cars", "services", "bookings"].map((s) => (
+              <button
+                key={s}
+                className={`cust-tab-button${activeSection === s ? " active" : ""}`}
+                type="button"
+                onClick={() => {
+                  resetMessages();
+                  setActiveSection(s);
+                  if (s === "bookings") fetchMyBookings();
+                }}
+              >
+                {s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          {(actionMessage || actionError) && (
+            <div className="cust-action-banner">
+              {actionMessage ? (
+                <p className="cust-action-success">{actionMessage}</p>
+              ) : null}
+              {actionError ? (
+                <p className="cust-action-error">{actionError}</p>
+              ) : null}
+            </div>
+          )}
+
+          {/* ── PROFILE ── */}
+          {activeSection === "profile" ? (
+            <div className="cust-panel">
+              <div className="cust-card cust-profile-info">
+                <h3>My Profile</h3>
+                {customerData?.profileImage ? (
+                  <img
+                    className="cust-avatar"
+                    src={customerData.profileImage}
+                    alt="avatar"
+                  />
+                ) : null}
+                <div className="cust-info-row">
+                  <span className="cust-label">Name</span>
+                  <span>{customerData?.name}</span>
+                </div>
+                <div className="cust-info-row">
+                  <span className="cust-label">Username</span>
+                  <span>@{customerData?.userName}</span>
+                </div>
+                <div className="cust-info-row">
+                  <span className="cust-label">Email</span>
+                  <span>{customerData?.email}</span>
+                </div>
+                <div className="cust-info-row">
+                  <span className="cust-label">Phone</span>
+                  <span>{customerData?.phone}</span>
+                </div>
+                <div className="cust-info-row">
+                  <span className="cust-label">Address</span>
+                  <span>{customerData?.address || "—"}</span>
+                </div>
+              </div>
+
+              <div className="cust-panel-grid">
+                <form className="cust-card" onSubmit={onUpdateProfile}>
+                  <h3>Update Account</h3>
+                  <div className="cust-form-row">
+                    <label>Name</label>
+                    <input
+                      className="cust-text-input"
+                      value={profileForm.name}
+                      onChange={(e) =>
+                        setProfileForm((p) => ({ ...p, name: e.target.value }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="cust-form-row">
+                    <label>Email</label>
+                    <input
+                      className="cust-text-input"
+                      type="email"
+                      value={profileForm.email}
+                      onChange={(e) =>
+                        setProfileForm((p) => ({ ...p, email: e.target.value }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="cust-form-row">
+                    <label>Phone</label>
+                    <input
+                      className="cust-text-input"
+                      value={profileForm.phone}
+                      onChange={(e) =>
+                        setProfileForm((p) => ({ ...p, phone: e.target.value }))
+                      }
+                      required
+                    />
+                  </div>
+                  <button className="button" type="submit">
+                    Save Changes
+                  </button>
+                </form>
+
+                <form className="cust-card" onSubmit={onChangePassword}>
+                  <h3>Change Password</h3>
+                  <div className="cust-form-row">
+                    <label>Current Password</label>
+                    <input
+                      className="cust-text-input"
+                      type="password"
+                      value={passwordForm.oldPassword}
+                      onChange={(e) =>
+                        setPasswordForm((p) => ({
+                          ...p,
+                          oldPassword: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="cust-form-row">
+                    <label>New Password</label>
+                    <input
+                      className="cust-text-input"
+                      type="password"
+                      value={passwordForm.newPassword}
+                      onChange={(e) =>
+                        setPasswordForm((p) => ({
+                          ...p,
+                          newPassword: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+                  <button className="button" type="submit">
+                    Change Password
+                  </button>
+                </form>
+
+                <form className="cust-card" onSubmit={onUpdateProfileImage}>
+                  <h3>Update Profile Image</h3>
+                  <div className="cust-form-row">
+                    <label>New Image</label>
+                    <input
+                      className="cust-text-input"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) =>
+                        setProfileImageFile(e.target.files?.[0] || null)
+                      }
+                      required
+                    />
+                  </div>
+                  <button className="button" type="submit">
+                    Upload
+                  </button>
+                </form>
+              </div>
+            </div>
+          ) : null}
+
+          {/* ── CARS ── */}
+          {activeSection === "cars" ? (
+            <div className="cust-panel">
+              {registeredCarId ? (
+                <div className="cust-card cust-carId-notice">
+                  <p>
+                    <strong>Last registered Car ID:</strong> {registeredCarId}
+                    <br />
+                    <span className="cust-muted">
+                      Copy this ID to update or remove the car.
+                    </span>
+                  </p>
+                </div>
+              ) : null}
+
+              <div className="cust-panel-grid">
+                <form className="cust-card" onSubmit={onRegisterCar}>
+                  <h3>Register New Car</h3>
+                  <div className="cust-form-row">
+                    <label>Brand</label>
+                    <input
+                      className="cust-text-input"
+                      value={carForm.brand}
+                      onChange={(e) =>
+                        setCarForm((p) => ({ ...p, brand: e.target.value }))
+                      }
+                      placeholder="Toyota"
+                      required
+                    />
+                  </div>
+                  <div className="cust-form-row">
+                    <label>Model</label>
+                    <input
+                      className="cust-text-input"
+                      value={carForm.model}
+                      onChange={(e) =>
+                        setCarForm((p) => ({ ...p, model: e.target.value }))
+                      }
+                      placeholder="Camry"
+                      required
+                    />
+                  </div>
+                  <div className="cust-form-row">
+                    <label>License No</label>
+                    <input
+                      className="cust-text-input"
+                      value={carForm.licenseNo}
+                      onChange={(e) =>
+                        setCarForm((p) => ({ ...p, licenseNo: e.target.value }))
+                      }
+                      placeholder="AP09AB1234"
+                      required
+                    />
+                  </div>
+                  <button className="button" type="submit">
+                    Register
+                  </button>
+                </form>
+
+                <form className="cust-card" onSubmit={onUpdateCar}>
+                  <h3>Update Car</h3>
+                  <div className="cust-form-row">
+                    <label>Car ID</label>
+                    <input
+                      className="cust-text-input"
+                      value={carUpdate.carId}
+                      onChange={(e) =>
+                        setCarUpdate((p) => ({ ...p, carId: e.target.value }))
+                      }
+                      placeholder="Paste car _id here"
+                      required
+                    />
+                  </div>
+                  <div className="cust-form-row">
+                    <label>Brand (optional)</label>
+                    <input
+                      className="cust-text-input"
+                      value={carUpdate.brand}
+                      onChange={(e) =>
+                        setCarUpdate((p) => ({ ...p, brand: e.target.value }))
+                      }
+                      placeholder="Honda"
+                    />
+                  </div>
+                  <div className="cust-form-row">
+                    <label>Model (optional)</label>
+                    <input
+                      className="cust-text-input"
+                      value={carUpdate.model}
+                      onChange={(e) =>
+                        setCarUpdate((p) => ({ ...p, model: e.target.value }))
+                      }
+                      placeholder="Civic"
+                    />
+                  </div>
+                  <div className="cust-form-row">
+                    <label>License No (optional)</label>
+                    <input
+                      className="cust-text-input"
+                      value={carUpdate.licenseNo}
+                      onChange={(e) =>
+                        setCarUpdate((p) => ({
+                          ...p,
+                          licenseNo: e.target.value,
+                        }))
+                      }
+                      placeholder="TS10XY5678"
+                    />
+                  </div>
+                  <button className="button" type="submit">
+                    Update
+                  </button>
+                </form>
+
+                <form className="cust-card" onSubmit={onRemoveCar}>
+                  <h3>Remove Car</h3>
+                  <div className="cust-form-row">
+                    <label>Car ID</label>
+                    <input
+                      className="cust-text-input"
+                      value={carDeleteId}
+                      onChange={(e) => setCarDeleteId(e.target.value)}
+                      placeholder="Paste car _id here"
+                      required
+                    />
+                  </div>
+                  <button className="button" type="submit">
+                    Remove
+                  </button>
+                </form>
+              </div>
+            </div>
+          ) : null}
+
+          {/* ── SERVICES ── */}
+          {activeSection === "services" ? (
+            <div className="cust-panel">
+              <div className="cust-card">
+                <h3>Available Services</h3>
+                <div className="cust-list">
+                  {services.length ? (
+                    services.map((s) => (
+                      <div className="cust-list-row" key={s._id}>
+                        <span className="cust-list-title">{s.serviceType}</span>
+                        <span className="cust-list-meta">
+                          ₹{s.serviceCharge}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="cust-muted">No services available.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {/* ── BOOKINGS ── */}
+          {activeSection === "bookings" ? (
+            <div className="cust-panel">
+              <div className="cust-panel-grid">
+                {/* Book Service Form */}
+                <form className="cust-card" onSubmit={onBookService}>
+                  <h3>Book a Service</h3>
+                  <div className="cust-form-row">
+                    <label>Select Service</label>
+                    <select
+                      className="cust-text-input"
+                      value={bookingForm.serviceId}
+                      onChange={(e) =>
+                        setBookingForm((p) => ({
+                          ...p,
+                          serviceId: e.target.value,
+                        }))
+                      }
+                      required
+                    >
+                      <option value="">-- choose service --</option>
+                      {services.map((s) => (
+                        <option key={s._id} value={s._id}>
+                          {s.serviceType} — ₹{s.serviceCharge}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="cust-form-row">
+                    <label>Car Brand</label>
+                    <input
+                      className="cust-text-input"
+                      value={bookingForm.brand}
+                      onChange={(e) =>
+                        setBookingForm((p) => ({ ...p, brand: e.target.value }))
+                      }
+                      placeholder="Toyota"
+                      required
+                    />
+                  </div>
+                  <div className="cust-form-row">
+                    <label>Car Model</label>
+                    <input
+                      className="cust-text-input"
+                      value={bookingForm.model}
+                      onChange={(e) =>
+                        setBookingForm((p) => ({ ...p, model: e.target.value }))
+                      }
+                      placeholder="Camry"
+                      required
+                    />
+                  </div>
+                  <div className="cust-form-row">
+                    <label>License No</label>
+                    <input
+                      className="cust-text-input"
+                      value={bookingForm.licenseNo}
+                      onChange={(e) =>
+                        setBookingForm((p) => ({
+                          ...p,
+                          licenseNo: e.target.value,
+                        }))
+                      }
+                      placeholder="AP09AB1234"
+                      required
+                    />
+                  </div>
+                  <div className="cust-form-row">
+                    <label>Preferred Date</label>
+                    <input
+                      className="cust-text-input"
+                      type="date"
+                      value={bookingForm.bookingDate}
+                      min={new Date().toISOString().split("T")[0]}
+                      onChange={(e) =>
+                        setBookingForm((p) => ({
+                          ...p,
+                          bookingDate: e.target.value,
+                        }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="cust-form-row">
+                    <label>Notes (optional)</label>
+                    <textarea
+                      className="cust-text-input cust-textarea"
+                      value={bookingForm.notes}
+                      onChange={(e) =>
+                        setBookingForm((p) => ({ ...p, notes: e.target.value }))
+                      }
+                      placeholder="Any specific issues..."
+                      rows={3}
+                    />
+                  </div>
+                  <button className="button" type="submit">
+                    Book Now
+                  </button>
+                </form>
+
+                {/* My Bookings List */}
+                <div className="cust-card cust-bookings-list">
+                  <h3>My Bookings</h3>
+                  <div className="cust-list">
+                    {myBookings.length ? (
+                      myBookings.map((b) => (
+                        <div className="cust-booking-row" key={b._id}>
+                          <div className="cust-booking-header">
+                            <span className="cust-list-title">
+                              {b.service?.serviceType || "Service"}
+                            </span>
+                            <span
+                              className={`cust-status cust-status--${b.status}`}
+                            >
+                              {b.status}
+                            </span>
+                          </div>
+                          <div className="cust-booking-details">
+                            <span>
+                              {b.carDetails?.brand} {b.carDetails?.model} (
+                              {b.carDetails?.licenseNo})
+                            </span>
+                            <span>₹{b.service?.serviceCharge}</span>
+                            <span>
+                              📅 {new Date(b.bookingDate).toLocaleDateString()}
+                            </span>
+                            {b.mechanic ? (
+                              <span>🔧 {b.mechanic.name}</span>
+                            ) : null}
+                            {b.notes ? (
+                              <span className="cust-muted">📝 {b.notes}</span>
+                            ) : null}
+                          </div>
+                          {!["completed", "cancelled"].includes(b.status) ? (
+                            <button
+                              className="cust-cancel-btn"
+                              type="button"
+                              onClick={() => onCancelBooking(b._id)}
+                            >
+                              Cancel
+                            </button>
+                          ) : null}
+                        </div>
+                      ))
+                    ) : (
+                      <p className="cust-muted">
+                        No bookings yet. Book a service!
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
