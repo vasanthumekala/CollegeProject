@@ -127,3 +127,15 @@
 .cust-list{
   /* height: 100%; */
 }
+.cust-date-input{
+  padding: 8px;
+  border: 1px solid #e0e7ff;
+  border-radius: 6px;
+  background: black !important;
+  font-family: inherit;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+  color: white;
+  cursor: pointer;
+}

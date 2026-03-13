@@ -94,7 +94,7 @@ export default function Owner() {
 
         {pageError ? <p className="owner-error">{pageError}</p> : null}
         {ownerData?.role !== "admin" ? (
-          <div className="owner-not-authorized">
+          <div className="owner-not-authorized-owner">
             <h3>Not authorized</h3>
             <p>This page is only for admin(owners)</p>
           </div>

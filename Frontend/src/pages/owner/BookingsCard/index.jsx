@@ -148,21 +148,21 @@ export default function BookingsCard() {
                 </div>
                 <div className="booking-admin-meta">
                   <span>
-                    🚗 {b.carDetails?.brand} {b.carDetails?.model} (
+                    Car Details: {b.carDetails?.brand} {b.carDetails?.model} (
                     {b.carDetails?.licenseNo})
                   </span>
                   <span>
-                    🔧 {b.service?.serviceType} — ₹{b.service?.serviceCharge}
+                    Service Type: {b.service?.serviceType} — ₹{b.service?.serviceCharge}
                   </span>
-                  <span>📅 {new Date(b.bookingDate).toLocaleDateString()}</span>
+                  <span>Booked Date: {new Date(b.bookingDate).toLocaleDateString()}</span>
                   {b.mechanic ? (
                     <span>Mechanic: {b.mechanic.name}</span>
                   ) : (
                     <span className="muted">No mechanic assigned</span>
                   )}
-                  {b.notes && <span className="muted">📝 {b.notes}</span>}
+                  {b.notes && <span className="muted">Notes: {b.notes}</span>}
                   <span className="muted">
-                    📞 {b.user?.phone} | {b.user?.email}
+                    Phone: {b.user?.phone} | Email: {b.user?.email}
                   </span>
                 </div>
               </div>

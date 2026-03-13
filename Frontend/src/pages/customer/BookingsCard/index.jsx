@@ -189,7 +189,7 @@ export default function BookingsCard() {
           <div className="cust-form-row">
             <label>Preferred Date</label>
             <input
-              className="cust-text-input"
+              className="cust-text-input cust-date-input"
               type="date"
               value={bookingForm.bookingDate}
               min={new Date().toISOString().split("T")[0]}
