@@ -1,0 +1,255 @@
+/* == Contact Section == */
+.contact {
+  width: 100%;
+  padding: 100px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #0d1b2a;
+  color: #fff;
+  font-family: "Nunito", sans-serif;
+  scroll-margin-top: 70px;
+}
+
+/* -- Header -- */
+.contact-label {
+  color: #f6c244;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.contact-title {
+  text-align: center;
+  font-size: 36px;
+  font-weight: 800;
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
+}
+
+.contact-subtitle {
+  text-align: center;
+  color: #9baab8;
+  font-size: 15px;
+  margin: 0 0 48px;
+  line-height: 1.6;
+}
+
+/* -- Grid Layout -- */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 32px;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.contact-card {
+  background: #15243a;
+  border-radius: 20px;
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* -- Info Items -- */
+.contact-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.contact-icon-box {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 10px;
+  background: rgba(246, 194, 68, 0.1);
+  border: 1px solid rgba(246, 194, 68, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-svg {
+  width: 20px;
+  height: 20px;
+}
+
+.contact-info-label {
+  font-size: 12px;
+  color: #6b7e93;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0 0 4px;
+}
+
+.contact-info-value {
+  font-size: 14px;
+  color: #d0dae6;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* -- Working Hours -- */
+.contact-open-badge {
+  background: #0d3d22;
+  color: #4cce82;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid #1a6b3a;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.contact-hours-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 6px;
+  margin-top: 8px;
+}
+
+.contact-hours-day {
+  font-size: 13px;
+  color: #6b7e93;
+}
+
+.contact-hours-time {
+  font-size: 13px;
+  color: #d0dae6;
+  text-align: right;
+}
+
+/* -- Map -- */
+.contact-map-wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #1e3248;
+}
+
+/* -- Form -- */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.contact-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contact-field-label {
+  font-size: 12px;
+  color: #8a9aaa;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.contact-input {
+  background: #0d1b2a;
+  border: 1px solid #1e3248;
+  border-radius: 8px;
+  color: #d0dae6;
+  font-size: 14px;
+  font-family: "Nunito", sans-serif;
+  padding: 10px 14px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.contact-input:focus {
+  border-color: #f6c244;
+}
+
+.contact-textarea {
+  resize: none;
+}
+
+/* -- Submit Button -- */
+.contact-submit-btn {
+  background: #f6c244;
+  color: #0d1b2a;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: "Nunito", sans-serif;
+  padding: 13px 28px;
+  cursor: pointer;
+  transition: background 0.2s;
+  letter-spacing: 0.3px;
+}
+
+.contact-submit-btn:hover {
+  background: #ffd62e;
+}
+
+/* -- Success Message -- */
+.contact-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 100%;
+  min-height: 300px;
+  color: #4cce82;
+  text-align: center;
+}
+
+.contact-success-icon {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.contact-success-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.contact-success-sub {
+  margin: 0;
+  color: #9baab8;
+  font-size: 14px;
+}
+
+.contact-error {
+  margin: 0;
+  padding: 10px 14px;
+  background: rgba(255, 107, 107, 0.15);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 8px;
+  color: #ff6b6b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* -- Responsive -- */
+@media (max-width: 768px) {
+  .contact {
+    padding: 72px 20px;
+  }
+
+  .contact-form-row {
+    grid-template-columns: 1fr;
+  }
+}

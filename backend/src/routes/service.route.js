@@ -15,3 +15,4 @@ router.route("/allService").get(verifyJWT,getAllService)
 
 
 export default router
+

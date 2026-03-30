@@ -66,6 +66,9 @@ function Login() {
 
   return (
     <div className="login-container">
+      <Link to="/" className="back-home-link">
+        ← Back to Home
+      </Link>
       <form className="Form-container" onSubmit={handleSubmit}>
         <h2>Login {user?.whoEntered ? `as ${user.whoEntered}` : ""}</h2>
 
@@ -108,9 +111,12 @@ function Login() {
         </div>
 
         {error ? <p className="error-text">{error}</p> : null}
-
-        <button className="button" type="submit" disabled={loading}>
-          Login
+        <button
+          className="button login-button"
+          type="submit"
+          disabled={loading}
+        >
+          {loading ? "Logging in..." : "Login"}
         </button>
 
         <p className="helper-text">

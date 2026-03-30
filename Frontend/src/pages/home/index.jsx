@@ -1,80 +1,103 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AiFillSafetyCertificate } from "react-icons/ai";
 import { CiBookmarkPlus } from "react-icons/ci";
-import { FaBook } from "react-icons/fa";
-import { LuTrainTrack } from "react-icons/lu";
-import { FaHistory } from "react-icons/fa";
+import {
+  LuTrainTrack,
+  LuWrench,
+  LuSearch,
+  LuSnowflake,
+  LuBattery,
+  LuPaintbrush,
+  LuSparkles,
+  LuZap,
+  LuCircleDot,
+} from "react-icons/lu";
 import { GrSecure } from "react-icons/gr";
-import  useAuth  from "../../hooks/useAuth";
-import { v4 as uuidv4 } from "uuid";
+import { FaCheckCircle } from "react-icons/fa";
+import useAuth from "../../hooks/useAuth";
+import ContactSection from "./ContactSection";
 import "./index.css";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { whoenteredtopage,user } = useAuth();
+  const { whoenteredtopage, user } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  console.log(user,"home page user");
   const navItems = [
     { label: "Home", href: "#home" },
     { label: "About", href: "#about" },
     { label: "Services", href: "#services" },
     { label: "Why Choose Us", href: "#why-choose-us" },
-    { label: "Why Login is Required", href: "#login-required" },
+    { label: "Contact Us", href: "#contactsection" },
   ];
 
   const personDesignation = (e) => {
     e.preventDefault();
     const person = e.target.value;
-    console.log(person,"home page");
     whoenteredtopage(person);
     navigate("/login");
   };
 
   const services = [
     {
-      title: "Periodic maintenance services",
-      id: uuidv4(),
+      title: "Periodic Maintenance",
+      icon: <LuWrench />,
+      desc: "Scheduled servicing to keep your vehicle running smoothly",
     },
     {
-      title: "Car inspection and checks",
-      id: uuidv4(),
+      title: "Car Inspection & Checks",
+      icon: <LuSearch />,
+      desc: "Comprehensive multi-point vehicle health diagnosis",
     },
     {
-      title: "AC service and repairs",
-      id: uuidv4(),
+      title: "AC Service & Repairs",
+      icon: <LuSnowflake />,
+      desc: "Complete AC system servicing, gas refill & repairs",
     },
     {
-      title: "Battery services",
-      id: uuidv4(),
+      title: "Battery Services",
+      icon: <LuBattery />,
+      desc: "Battery testing, replacement & jump-start assistance",
     },
     {
-      title: "Dent repair and painting",
-      id: uuidv4(),
+      title: "Dent Repair & Painting",
+      icon: <LuPaintbrush />,
+      desc: "Precision dent removal and professional repainting",
     },
     {
-      title: "Car detailing and spa",
-      id: uuidv4(),
+      title: "Car Detailing & Spa",
+      icon: <LuSparkles />,
+      desc: "Interior & exterior deep cleaning and polishing",
     },
     {
-      title: "Electrical repairs",
-      id: uuidv4(),
+      title: "Electrical Repairs",
+      icon: <LuZap />,
+      desc: "Wiring, sensors, lights & electronic diagnostics",
     },
     {
-      title: "Tyre and wheel services",
-      id: uuidv4(),
+      title: "Tyre & Wheel Services",
+      icon: <LuCircleDot />,
+      desc: "Alignment, balancing, replacement & puncture repair",
     },
+  ];
+
+  const whyChooseUs = [
+    "Convenient online booking — schedule from anywhere, anytime",
+    "Quick and intuitive interface designed for ease of use",
+    "Secure user experience with encrypted data protection",
+    "Transparent real-time service status updates",
+    "Efficient service center management tools",
   ];
 
   return (
     <div className="home-container">
+      {/* ── Navbar ── */}
       <nav className="nav-container">
         <div className="nav-brand">
           <img
             className="logo"
             src="https://res.cloudinary.com/dk2bbhmdm/image/upload/v1769749778/ChatGPT_Image_Jan_30_2026_10_35_46_AMlogo_hgcy8e.png"
-            alt="Logo"
-          /> 
+            alt="Vehicle Care Logo"
+          />
         </div>
         <button
           type="button"
@@ -97,118 +120,160 @@ export default function Home() {
           ))}
         </ul>
       </nav>
-      <div className="home-content" id="home">
-        <div className="login-options">
-          <div className="home-page-login-container">
-            <p className="please-login-para">Please login to continue</p>
-            <div className="user-admit-login-container">
+
+      {/* ── Hero ── */}
+      <section className="hero" id="home">
+        <div className="hero-overlay" />
+        <div className="hero-content">
+          <div className="hero-text">
+            <span className="hero-kicker">
+              Trusted Vehicle Service Platform
+            </span>
+            <h1 className="hero-heading">
+              Premium Car Care,
+              <br />
+              <span className="hero-heading-accent">Made Simple.</span>
+            </h1>
+            <p className="hero-sub">
+              Book expert vehicle servicing online. Fast scheduling, real-time
+              tracking, and transparent pricing — all in one place.
+            </p>
+            <div className="hero-stats">
+              <div className="hero-stat">
+                <span className="hero-stat-value">500+</span>
+                <span className="hero-stat-label">Happy Customers</span>
+              </div>
+              <div className="hero-stat-divider" />
+              <div className="hero-stat">
+                <span className="hero-stat-value">8+</span>
+                <span className="hero-stat-label">Service Types</span>
+              </div>
+              <div className="hero-stat-divider" />
+              <div className="hero-stat">
+                <span className="hero-stat-value">24/7</span>
+                <span className="hero-stat-label">Online Booking</span>
+              </div>
+            </div>
+          </div>
+          <div className="hero-login-card">
+            <h3 className="hero-login-title">Get Started</h3>
+            <p className="hero-login-sub">Choose your role to log in</p>
+            <div className="hero-login-buttons">
               <button
                 value="customer"
                 className="login-btn user-login"
                 type="button"
                 onClick={personDesignation}
               >
-                Login as customer
+                Login as Customer
               </button>
-
               <button
                 value="owner"
                 className="login-btn admin-login"
                 type="button"
                 onClick={personDesignation}
               >
-                Login as owner
+                Login as Owner
               </button>
             </div>
           </div>
         </div>
-      </div>
-      <div className="about-container" id="about">
+      </section>
+
+      {/* ── About ── */}
+      <section className="about" id="about">
         <div className="about-content">
-          <span className="about-kicker">About Us</span>
-          <h2 className="about-heading">About Vehicle Care</h2>
+          <span className="section-kicker">About Us</span>
+          <h2 className="section-heading">About Vehicle Care</h2>
           <p className="about-para">
             Our system provides a smart and convenient way for customers to book
             vehicle service appointments online while enabling service centers
             to manage bookings and schedules efficiently.
           </p>
-          <div className="about-divider" />
+          <div className="section-divider" />
           <div className="about-features">
             <div className="about-feature-card">
-              <span className="about-feature-icon"><CiBookmarkPlus /></span>
+              <span className="about-feature-icon">
+                <CiBookmarkPlus />
+              </span>
               <h4>Easy Online Booking</h4>
-              <p>Book your vehicle service in minutes from anywhere, anytime.</p>
+              <p>
+                Book your vehicle service in minutes from anywhere, anytime.
+              </p>
             </div>
             <div className="about-feature-card">
-              <span className="about-feature-icon"><LuTrainTrack /></span>
+              <span className="about-feature-icon">
+                <LuTrainTrack />
+              </span>
               <h4>Real-time Tracking</h4>
-              <p>Stay updated on your service status with live progress tracking.</p>
+              <p>
+                Stay updated on your service status with live progress tracking.
+              </p>
             </div>
             <div className="about-feature-card">
-              <span className="about-feature-icon"><GrSecure /></span>
+              <span className="about-feature-icon">
+                <GrSecure />
+              </span>
               <h4>Secure & Reliable</h4>
-              <p>Your data and bookings are protected with industry-grade security.</p>
+              <p>
+                Your data and bookings are protected with industry-grade
+                security.
+              </p>
             </div>
           </div>
         </div>
-      </div>
-      <section className="services-container" id="services">
-        <div className="services-header">
-          <h2>Services</h2>
-        </div>
+      </section>
+
+      {/* ── Services ── */}
+      <section className="services" id="services">
+        <span className="section-kicker">What We Offer</span>
+        <h2 className="section-heading">Our Services</h2>
+        <p className="services-sub">
+          Comprehensive vehicle care solutions tailored to your needs.
+        </p>
         <div className="services-grid">
-          {services.map((service) => (
-            <article className="service-card" key={service.id}>
+          {services.map((service, idx) => (
+            <article
+              className="service-card"
+              key={idx}
+              onClick={() => navigate("/login")}
+            >
+              <span className="service-icon">{service.icon}</span>
               <h3>{service.title}</h3>
+              <p>{service.desc}</p>
             </article>
           ))}
         </div>
       </section>
+
+      {/* ── Why Choose Us ── */}
       <section className="choose-us" id="why-choose-us">
-        <div className="choose-us-card">
-          <h2>Why Choose Us</h2>
-          <ul className="choose-us-un-list-container">
-            <li className="list-line">Convenient online booking</li>
-            <li className="list-line">Quick and simple interface</li>
-            <li className="list-line">Secure user experience</li>
-            <li className="list-line">Transparent service updates</li>
-            <li className="list-line">Efficient service management</li>
+        <div className="choose-us-inner">
+          <div className="choose-us-text">
+            <span className="section-kicker section-kicker--light">
+              Our Promise
+            </span>
+            <h2 className="section-heading section-heading--light">
+              Why Choose Us
+            </h2>
+            <p className="choose-us-para">
+              We're committed to making vehicle maintenance hassle-free with our
+              technology-driven approach and customer-first philosophy.
+            </p>
+          </div>
+          <ul className="choose-us-list">
+            {whyChooseUs.map((item, idx) => (
+              <li key={idx} className="choose-us-item">
+                <FaCheckCircle className="choose-us-check" />
+                <span>{item}</span>
+              </li>
+            ))}
           </ul>
         </div>
       </section>
-      <section className="login-required" id="login-required">
-        <div className="login-required-card">
-          <div className="login-required-card-overlay" />
-          <div className="login-required-card-content">
-            <h2>Why Login is Required</h2>
-            <p>
-              To provide a secure and reliable service experience, users are
-              required to log in before accessing booking features.
-            </p>
-            <p>Logging in helps you:</p>
-            <ul className="choose-us-un-list-container">
-              <li>
-                <AiFillSafetyCertificate /> Securely book service slots
-              </li>
-              <li>
-                <CiBookmarkPlus /> Save favorite service centers
-              </li>
-              <li>
-                <FaBook /> Save and manage vehicle details
-              </li>
-              <li>
-                <LuTrainTrack /> Track service status
-              </li>
-              <li>
-                <FaHistory /> View booking history
-              </li>
-              <li>
-                <GrSecure /> Protect personal data
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
+
+      {/* ── Contact ── */}
+      <ContactSection id="contactsection" />
     </div>
   );
 }

@@ -8,6 +8,30 @@
   background-size: cover;
   min-height: 100vh;
   padding: 24px 16px;
+  position: relative;
+}
+
+.login-container .back-home-link {
+  position: absolute;
+  top: 24px;
+  left: 28px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  transition:
+    background 0.2s,
+    color 0.2s;
+  z-index: 10;
+}
+
+.login-container .back-home-link:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
 }
 
 .Form-container {
@@ -93,8 +117,10 @@
 }
 
 .Form-container .error-text {
-  color: #ff6b6b;
-  margin: 8px 0 0;
+  text-align: center;
+  color: #f50b0b;
+  margin: 8px 0 10px;
+  font-weight: 600;
 }
 
 @media (max-width: 480px) {
@@ -106,6 +132,9 @@
     font-size: 1.4rem;
   }
 }
-.captcha{
+.captcha {
   height: 30px;
+}
+.login-button {
+  width: 100%;
 }

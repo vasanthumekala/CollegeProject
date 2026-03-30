@@ -1,0 +1,63 @@
+/* -- Messages Card -- */
+.msg-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid #e0e7ff;
+  background: #f5f3ff;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.msg-row:hover {
+  border-color: #a5b4fc;
+}
+
+.msg-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.msg-header:hover {
+  background: #ede9fe;
+}
+
+.msg-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.msg-date {
+  font-size: 0.75em;
+  color: #6366f1;
+  white-space: nowrap;
+}
+
+.msg-details {
+  padding: 12px 14px;
+  border-top: 1px solid #e0e7ff;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #fff;
+}
+
+.msg-detail-row {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #1e1b4b;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.msg-detail-row strong {
+  color: #6366f1;
+  margin-right: 6px;
+}

@@ -9,6 +9,7 @@ import ServicesCard from "./ServicesCard";
 import InventoryCard from "./InventoryCard";
 import MechanicsCard from "./MechanicsCard";
 import BookingsCard from "./BookingsCard";
+import MessagesCard from "./MessagesCard";
 
 const API_BASE_URL = "http://localhost:8000/api/v1";
 
@@ -18,6 +19,7 @@ const SECTIONS = [
   { key: "inventory", label: "Inventory" },
   { key: "mechanics", label: "Mechanics" },
   { key: "bookings", label: "Bookings" },
+  { key: "messages", label: "Messages" },
 ];
 
 export default function Owner() {
@@ -124,6 +126,7 @@ export default function Owner() {
               {activeSection === "inventory" && <InventoryCard />}
               {activeSection === "mechanics" && <MechanicsCard />}
               {activeSection === "bookings" && <BookingsCard />}
+              {activeSection === "messages" && <MessagesCard />}
             </div>
           </div>
         )}

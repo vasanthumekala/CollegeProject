@@ -21,6 +21,7 @@ import mechanicRoutes from "./routes/mechanic.route.js";
 import carRouter from "./routes/car.route.js";
 import serviceRouter from "./routes/service.route.js";
 import bookingRouter from "./routes/booking.route.js";
+import contactMessageRouter from "./routes/contactMessage.route.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 app.use("/api/v1/users", userRoutes);
@@ -29,7 +30,9 @@ app.use("/api/v1/mechanic", mechanicRoutes);
 app.use("/api/v1/cars", carRouter);
 app.use("/api/v1/services", serviceRouter);
 app.use("/api/v1/bookings", bookingRouter);
+app.use("/api/v1/contact", contactMessageRouter);
 
 app.use(errorMiddleware);
 
 export { app };
+//24,33
