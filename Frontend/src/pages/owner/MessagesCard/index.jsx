@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import cookies from "js-cookie";
+import { API_BASE_URL } from "../../../services/api";
 import "./index.css";
-
-const API_BASE_URL = "http://localhost:8000/api/v1";
 
 const getAuthConfig = () => {
   const jwtToken = cookies.get("vehicleServiceToken");
@@ -75,7 +74,10 @@ export default function MessagesCard() {
       )}
 
       <div className="card">
-        <h3>Contact Messages ({messages.length})</h3>
+        <div className="card-heading-row">
+          <h3>Contact Messages</h3>
+          <span className="count-pill">{messages.length}</span>
+        </div>
         <div className="list">
           {messages.length ? (
             messages.map((msg) => (

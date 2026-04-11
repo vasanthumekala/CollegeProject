@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../../services/api";
 import "./index.css";
-
-const API_BASE_URL = "http://localhost:8000/api/v1";
 
 const ContactSection = ({ id }) => {
   const [form, setForm] = useState({

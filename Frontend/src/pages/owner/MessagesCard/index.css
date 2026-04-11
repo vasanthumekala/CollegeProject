@@ -4,15 +4,15 @@
   flex-direction: column;
   gap: 0;
   padding: 0;
-  border-radius: 8px;
-  border: 1px solid #e0e7ff;
-  background: #f5f3ff;
+  border-radius: 12px;
+  border: 1px solid #c7f9f0;
+  background: #f0fdfa;
   overflow: hidden;
   transition: border-color 0.15s;
 }
 
 .msg-row:hover {
-  border-color: #a5b4fc;
+  border-color: #14b8a6;
 }
 
 .msg-header {
@@ -25,7 +25,7 @@
 }
 
 .msg-header:hover {
-  background: #ede9fe;
+  background: #ccfbf1;
 }
 
 .msg-header-left {
@@ -36,13 +36,13 @@
 
 .msg-date {
   font-size: 0.75em;
-  color: #6366f1;
+  color: #0f766e;
   white-space: nowrap;
 }
 
 .msg-details {
   padding: 12px 14px;
-  border-top: 1px solid #e0e7ff;
+  border-top: 1px solid #99f6e4;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -52,12 +52,12 @@
 .msg-detail-row {
   margin: 0;
   font-size: 0.88rem;
-  color: #1e1b4b;
+  color: #083344;
   line-height: 1.5;
   word-break: break-word;
 }
 
 .msg-detail-row strong {
-  color: #6366f1;
+  color: #0f766e;
   margin-right: 6px;
 }

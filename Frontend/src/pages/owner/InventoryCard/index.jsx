@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import cookies from "js-cookie";
-
-const API_BASE_URL = "http://localhost:8000/api/v1";
+import { API_BASE_URL } from "../../../services/api";
 
 const getAuthConfig = () => {
   const jwtToken = cookies.get("vehicleServiceToken");
@@ -180,7 +179,10 @@ export default function InventoryCard() {
       )}
 
       <div className="card">
-        <h3>All Products</h3>
+        <div className="card-heading-row">
+          <h3>All Products</h3>
+          <span className="count-pill">{products.length}</span>
+        </div>
         <div className="list">
           {products.length ? (
             products.map((p) => (
@@ -412,12 +414,8 @@ export default function InventoryCard() {
           </button>
         </form>
 
-        <form
-          className="card"
-          style={{ borderTop: "3px solid #dc2626" }}
-          onSubmit={onDeleteProduct}
-        >
-          <h3 style={{ color: "#dc2626" }}>Delete Product</h3>
+        <form className="card card--danger" onSubmit={onDeleteProduct}>
+          <h3 className="card-title-danger">Delete Product</h3>
           <div className="form-row">
             <label>Select Product</label>
             <select

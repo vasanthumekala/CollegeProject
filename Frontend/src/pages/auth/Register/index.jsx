@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../../hooks/useAuth";
+import { API_BASE_URL } from "../../../services/api";
 import "./index.css";
 
 function Register() {
@@ -52,7 +53,7 @@ function Register() {
         formData.append("profileImage", profileImage);
       }
 
-      await axios.post("http://localhost:8000/api/v1/users/register", formData);
+      await axios.post(`${API_BASE_URL}/users/register`, formData);
       setLoading(false);
       navigate("/login");
     } catch (error) {

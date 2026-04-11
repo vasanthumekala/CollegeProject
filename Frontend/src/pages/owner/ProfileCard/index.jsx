@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import cookies from "js-cookie";
+import { API_BASE_URL } from "../../../services/api";
 import "./index.css";
-
-const API_BASE_URL = "http://localhost:8000/api/v1";
 
 export default function ProfileCard({ ownerData, setOwnerData }) {
   const [profileForm, setProfileForm] = useState({
@@ -135,20 +134,20 @@ export default function ProfileCard({ ownerData, setOwnerData }) {
           />
         )}
         <div className="owner-info-row">
-          <span className="owner-label">Name</span>
-          <span>{ownerData?.name}</span>
+          <span className="owner-label">Name :</span>
+          <span className="owner-name">{ownerData?.name}</span>
         </div>
         <div className="owner-info-row">
-          <span className="owner-label">Email</span>
-          <span>{ownerData?.email}</span>
+          <span className="owner-label">Email :</span>
+          <span className="owner-email">{ownerData?.email}</span>
         </div>
         <div className="owner-info-row">
-          <span className="owner-label">Phone</span>
-          <span>{ownerData?.phone}</span>
+          <span className="owner-label">Phone :</span>
+          <span className="owner-phone">{ownerData?.phone}</span>
         </div>
         <div className="owner-info-row">
-          <span className="owner-label">Address</span>
-          <span>{ownerData?.address || "—"}</span>
+          <span className="owner-label">Address :</span>
+          <span className="owner-address">{ownerData?.address || "—"}</span>
         </div>
       </div>
 

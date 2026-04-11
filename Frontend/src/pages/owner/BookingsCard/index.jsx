@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import cookies from "js-cookie";
+import { API_BASE_URL } from "../../../services/api";
 import "./index.css";
-
-const API_BASE_URL = "http://localhost:8000/api/v1";
 
 const STATUSES = [
   "pending",
@@ -133,7 +132,10 @@ export default function BookingsCard() {
       )}
 
       <div className="card">
-        <h3>All Bookings</h3>
+        <div className="card-heading-row">
+          <h3>All Bookings</h3>
+          <span className="count-pill">{allBookings.length}</span>
+        </div>
         <div className="list">
           {allBookings.length ? (
             allBookings.map((b) => (
@@ -152,9 +154,12 @@ export default function BookingsCard() {
                     {b.carDetails?.licenseNo})
                   </span>
                   <span>
-                    Service Type: {b.service?.serviceType} — ₹{b.service?.serviceCharge}
+                    Service Type: {b.service?.serviceType} — ₹
+                    {b.service?.serviceCharge}
                   </span>
-                  <span>Booked Date: {new Date(b.bookingDate).toLocaleDateString()}</span>
+                  <span>
+                    Booked Date: {new Date(b.bookingDate).toLocaleDateString()}
+                  </span>
                   {b.mechanic ? (
                     <span>Mechanic: {b.mechanic.name}</span>
                   ) : (
@@ -277,10 +282,7 @@ export default function BookingsCard() {
             )}
           </select>
           {allMechanics.length === 0 && !mechanicsLoading && (
-            <p
-              className="muted"
-              style={{ fontSize: "0.85em", marginTop: "4px" }}
-            >
+            <p className="muted helper-note">
               No mechanics found. Please add mechanics first.
             </p>
           )}

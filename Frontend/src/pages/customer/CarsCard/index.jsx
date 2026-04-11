@@ -1,9 +1,8 @@
 ﻿import { useState } from "react";
 import axios from "axios";
 import cookies from "js-cookie";
+import { API_BASE_URL } from "../../../services/api";
 import "./index.css";
-
-const API_BASE_URL = "http://localhost:8000/api/v1";
 
 export default function CarsCard() {
   const [carForm, setCarForm] = useState({
@@ -95,9 +94,9 @@ export default function CarsCard() {
   };
 
   return (
-    <div className="cust-panel">
+    <div className="cust-panel cust-cars-panel">
       {(actionMessage || actionError) && (
-        <div className="cust-action-banner">
+        <div className="cust-action-banner cust-cars-action-banner">
           {actionMessage && (
             <p className="cust-action-success">{actionMessage}</p>
           )}
@@ -105,10 +104,19 @@ export default function CarsCard() {
         </div>
       )}
 
+      <div className="cust-card cust-cars-hero">
+        <p className="cust-cars-kicker">Garage Space</p>
+        <h3>Manage Your Vehicles</h3>
+        <p className="cust-muted">
+          Register, update, and remove your vehicles from one control panel.
+        </p>
+      </div>
+
       {registeredCarId && (
-        <div className="cust-card cust-carId-notice">
+        <div className="cust-card cust-carId-notice cust-cars-id-notice">
           <p>
-            <strong>Last registered Car ID:</strong> {registeredCarId}
+            <strong>Last registered Car ID:</strong>{" "}
+            <span className="cust-cars-id-code">{registeredCarId}</span>
             <br />
             <span className="cust-muted">
               Copy this ID to update or remove the car.
@@ -117,8 +125,8 @@ export default function CarsCard() {
         </div>
       )}
 
-      <div className="cust-panel-grid">
-        <form className="cust-card" onSubmit={onRegisterCar}>
+      <div className="cust-panel-grid cust-cars-grid">
+        <form className="cust-card cust-cars-card" onSubmit={onRegisterCar}>
           <h3>Register New Car</h3>
           <div className="cust-form-row">
             <label>Brand</label>
@@ -161,7 +169,7 @@ export default function CarsCard() {
           </button>
         </form>
 
-        <form className="cust-card" onSubmit={onUpdateCar}>
+        <form className="cust-card cust-cars-card" onSubmit={onUpdateCar}>
           <h3>Update Car</h3>
           <div className="cust-form-row">
             <label>Car ID</label>
@@ -214,11 +222,10 @@ export default function CarsCard() {
         </form>
 
         <form
-          className="cust-card"
-          style={{ borderTop: "3px solid #dc2626" }}
+          className="cust-card cust-cars-card cust-cars-card-danger"
           onSubmit={onRemoveCar}
         >
-          <h3 style={{ color: "#dc2626" }}>Remove Car</h3>
+          <h3 className="cust-cars-danger-title">Remove Car</h3>
           <div className="cust-form-row">
             <label>Car ID</label>
             <input

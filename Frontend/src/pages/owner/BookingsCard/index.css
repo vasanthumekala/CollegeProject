@@ -1,10 +1,10 @@
 /* BookingsCard styles */
 
 .booking-admin-row {
-  background: #fff;
-  border: 1px solid #e0e7ff;
-  border-left: 4px solid #6366f1;
-  border-radius: 8px;
+  background: linear-gradient(180deg, #ffffff, #f0fdfa);
+  border: 1px solid #c7f9f0;
+  border-left: 4px solid #0f766e;
+  border-radius: 12px;
   padding: 12px 16px;
   margin-bottom: 10px;
   display: flex;
@@ -16,8 +16,8 @@
 }
 
 .booking-admin-row:hover {
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.15);
-  border-color: #a5b4fc;
+  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.2);
+  border-color: #2dd4bf;
 }
 
 .booking-admin-header {
@@ -25,7 +25,7 @@
   justify-content: space-between;
   align-items: center;
   font-weight: 600;
-  color: #1e1b4b;
+  color: #083344;
 }
 
 .booking-admin-meta {
@@ -33,7 +33,7 @@
   flex-direction: column;
   gap: 3px;
   font-size: 0.85rem;
-  color: #6366f1;
+  color: #0f766e;
 }
 
 /* Status badges */

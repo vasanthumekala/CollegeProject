@@ -8,8 +8,7 @@ import ProfileCard from "./ProfileCard";
 import CarsCard from "./CarsCard";
 import ServicesCard from "./ServicesCard";
 import BookingsCard from "./BookingsCard";
-
-const API_BASE_URL = "http://localhost:8000/api/v1";
+import { API_BASE_URL } from "../../services/api";
 
 export default function Customer() {
   const [customerData, setCustomerData] = useState(null);

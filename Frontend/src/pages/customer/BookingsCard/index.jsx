@@ -7,8 +7,7 @@ import { FaCalendarAlt } from "react-icons/fa";
 import { FaTools } from "react-icons/fa";
 import { FaRegMoneyBillAlt } from "react-icons/fa";
 import { FaCar } from "react-icons/fa";
-
-const API_BASE_URL = "http://localhost:8000/api/v1";
+import { API_BASE_URL } from "../../../services/api";
 
 export default function BookingsCard() {
   const [services, setServices] = useState([]);
@@ -218,7 +217,10 @@ export default function BookingsCard() {
 
         {/* My Bookings List */}
         <div className="cust-card cust-bookings-list">
-          <h3>My Bookings<span className="my-bookings-count">{myBookings.length}</span></h3>
+          <h3>
+            My Bookings
+            <span className="my-bookings-count">{myBookings.length}</span>
+          </h3>
           <div className="cust-list">
             {myBookings.length ? (
               myBookings.map((b) => (
@@ -232,17 +234,29 @@ export default function BookingsCard() {
                     </span>
                   </div>
                   <div className="cust-booking-details">
-                    <span class="my-bookings-list"><FaCar className="icon-my-bookings"/>
+                    <span class="my-bookings-list">
+                      <FaCar className="icon-my-bookings" />
                       {b.carDetails?.brand} {b.carDetails?.model} (
                       {b.carDetails?.licenseNo})
                     </span>
-                    <span class="my-bookings-list"><FaRegMoneyBillAlt className="icon-my-bookings"/> ₹{b.service?.serviceCharge}</span>
                     <span class="my-bookings-list">
-                      <FaCalendarAlt className="icon-my-bookings"/> {new Date(b.bookingDate).toLocaleDateString()}
+                      <FaRegMoneyBillAlt className="icon-my-bookings" /> ₹
+                      {b.service?.serviceCharge}
                     </span>
-                    {b.mechanic && <span class="my-bookings-list"><FaTools /> {b.mechanic.name}</span>}
+                    <span class="my-bookings-list">
+                      <FaCalendarAlt className="icon-my-bookings" />{" "}
+                      {new Date(b.bookingDate).toLocaleDateString()}
+                    </span>
+                    {b.mechanic && (
+                      <span class="my-bookings-list">
+                        <FaTools /> {b.mechanic.name}
+                      </span>
+                    )}
                     {b.notes && (
-                      <span className="cust-muted my-bookings-list"><MdOutlineNoteAlt className="icon-my-bookings"/> {b.notes}</span>
+                      <span className="cust-muted my-bookings-list">
+                        <MdOutlineNoteAlt className="icon-my-bookings" />{" "}
+                        {b.notes}
+                      </span>
                     )}
                   </div>
                   {!["completed", "cancelled"].includes(b.status) && (
@@ -265,4 +279,3 @@ export default function BookingsCard() {
     </div>
   );
 }
-

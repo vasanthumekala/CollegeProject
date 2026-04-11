@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import cookies from "js-cookie";
-
-const API_BASE_URL = "http://localhost:8000/api/v1";
+import { API_BASE_URL } from "../../../services/api";
 
 const getAuthConfig = () => {
   const jwtToken = cookies.get("vehicleServiceToken");
@@ -157,7 +156,10 @@ export default function MechanicsCard() {
       )}
 
       <div className="card">
-        <h3>All Mechanics</h3>
+        <div className="card-heading-row">
+          <h3>All Mechanics</h3>
+          <span className="count-pill">{mechanics.length}</span>
+        </div>
         <div className="list">
           {mechanics.length ? (
             mechanics.map((m) => (
@@ -337,12 +339,8 @@ export default function MechanicsCard() {
           </button>
         </form>
 
-        <form
-          className="card"
-          style={{ borderTop: "3px solid #dc2626" }}
-          onSubmit={onDeleteMechanic}
-        >
-          <h3 style={{ color: "#dc2626" }}>Remove Mechanic</h3>
+        <form className="card card--danger" onSubmit={onDeleteMechanic}>
+          <h3 className="card-title-danger">Remove Mechanic</h3>
           <div className="form-row">
             <label>Select Mechanic</label>
             <select

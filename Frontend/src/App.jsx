@@ -7,7 +7,7 @@ import Customer from "./pages/customer/index.jsx";
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/home/index.jsx";
 import AuthContext from "./context/AuthContext/index.jsx";
-// import axios from "axios";
+import ProtectedRoute from "./components/ProtectedRoute/index.jsx";
 
 const pageData = {
   whoEntered: null,
@@ -32,15 +32,6 @@ function App() {
     setUserData((prev) => [...prev, data]);
   };
 
-  // const createAccount = (userData) => {
-  //   const existingUsersData = localStorage.getItem("user");
-  //   const existingUserData = JSON.parse(existingUsersData);
-  //   const updatedUserData = { ...existingUserData, currentUser: userData };
-  //   localStorage.setItem("user", JSON.stringify(updatedUserData));
-  //   setUser(updatedUserData);
-  //   console.log(updatedUserData, "create account");
-  // };
-
   const whoenteredtopage = (person) => {
     const existingUsersData = localStorage.getItem("user");
     const existingUsers = JSON.parse(existingUsersData);
@@ -63,8 +54,12 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/owner" element={<Owner />} />
-        <Route path="/customer" element={<Customer />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/owner" element={<Owner />} />
+        </Route>
+        <Route element={<ProtectedRoute />}>
+          <Route path="/customer" element={<Customer />} />
+        </Route>
         <Route path="/not-found" element={<NotFound />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

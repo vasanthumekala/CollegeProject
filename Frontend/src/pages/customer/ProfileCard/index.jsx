@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import cookies from "js-cookie";
+import { API_BASE_URL } from "../../../services/api";
 import "./index.css";
-
-const API_BASE_URL = "http://localhost:8000/api/v1";
 
 export default function ProfileCard({ customerData, setCustomerData }) {
   const [profileForm, setProfileForm] = useState({

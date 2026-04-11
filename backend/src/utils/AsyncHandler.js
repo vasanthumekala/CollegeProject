@@ -4,4 +4,5 @@ const AsyncHandler = ( requestHandler )=>{
         .catch((err)=>next(err))
     }
 }
+
 export { AsyncHandler }

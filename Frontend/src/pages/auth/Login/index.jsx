@@ -5,6 +5,7 @@ import { MdEmail } from "react-icons/md";
 import { FaLock } from "react-icons/fa6";
 import useAuth from "../../../hooks/useAuth";
 import cookies from "js-cookie";
+import { API_BASE_URL } from "../../../services/api";
 import "./index.css";
 
 function Login() {
@@ -33,13 +34,10 @@ function Login() {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/v1/users/login",
-        {
-          email: formData.email,
-          password: formData.password,
-        },
-      );
+      const response = await axios.post(`${API_BASE_URL}/users/login`, {
+        email: formData.email,
+        password: formData.password,
+      });
 
       if (response.data?.matched === true || response.data?.success === true) {
         console.log(response.data, "login response");
