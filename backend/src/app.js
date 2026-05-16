@@ -3,9 +3,15 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 const app = express();
+
+// Parse CORS_ORIGIN for comma-separated values
+const corsOrigin = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim())
+  : ['http://localhost:3000', 'http://localhost:5173'];
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: corsOrigin,
     credentials: true,
   }),
 );
