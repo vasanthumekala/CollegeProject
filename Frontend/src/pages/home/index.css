@@ -177,6 +177,7 @@
   max-width: 1200px;
   padding: 80px 48px;
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   gap: 64px;

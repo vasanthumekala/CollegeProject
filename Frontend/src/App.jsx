@@ -1,13 +1,14 @@
-import { useState, useEffect } from "react";
-import Login from "./pages/auth/Login/index.jsx";
-import NotFound from "./pages/NotFound/index.jsx";
-import Register from "./pages/auth/Register/index.jsx";
-import Owner from "./pages/owner/index.jsx";
-import Customer from "./pages/customer/index.jsx";
+import { useState, useEffect, Suspense, lazy } from "react";
 import { Routes, Route } from "react-router-dom";
-import Home from "./pages/home/index.jsx";
 import AuthContext from "./context/AuthContext/index.jsx";
 import ProtectedRoute from "./components/ProtectedRoute/index.jsx";
+
+const Login = lazy(() => import("./pages/auth/Login/index.jsx"));
+const NotFound = lazy(() => import("./pages/NotFound/index.jsx"));
+const Register = lazy(() => import("./pages/auth/Register/index.jsx"));
+const Owner = lazy(() => import("./pages/owner/index.jsx"));
+const Customer = lazy(() => import("./pages/customer/index.jsx"));
+const Home = lazy(() => import("./pages/home/index.jsx"));
 
 const pageData = {
   whoEntered: null,
@@ -50,22 +51,23 @@ function App() {
     <AuthContext.Provider
       value={{ user, userData, logout, whoenteredtopage, recordTheUserData }}
     >
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route element={<ProtectedRoute />}>
-          <Route path="/owner" element={<Owner />} />
-        </Route>
-        <Route element={<ProtectedRoute />}>
-          <Route path="/customer" element={<Customer />} />
-        </Route>
-        <Route path="/not-found" element={<NotFound />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <Suspense fallback={<div className="p-4 text-center">Loading...</div>}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/owner" element={<Owner />} />
+          </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/customer" element={<Customer />} />
+          </Route>
+          <Route path="/not-found" element={<NotFound />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </AuthContext.Provider>
   );
 }
 
 export default App;
-
