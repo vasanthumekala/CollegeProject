@@ -46,6 +46,7 @@ const addMechanic = AsyncHandler(async (req, res) => {
       ),
     );
 });
+
 // update mechanic details
 const updateMechanic = AsyncHandler(async (req, res) => {
   if (req.user.role !== "admin") {

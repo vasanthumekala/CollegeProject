@@ -64,6 +64,7 @@ userSchema.methods.isPasswordCorrect=
   }
   return true;
     }
+
 // Generating jwt token
 userSchema.methods.generateAccessToken= function () {
     return jwt.sign(

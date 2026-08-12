@@ -98,6 +98,7 @@ const updateUserProfile = AsyncHandler(async (req, res) => {
   if (!profileImage.url) {
     throw new ApiError(400, "Error while uploading on cloudinary.");
   }
+  
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
